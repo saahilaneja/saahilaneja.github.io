@@ -76,48 +76,36 @@
         }
 
         .contact-button {
-            position: absolute;
-            top: 200px;
-            left: 200px;
+            position: relative;
+            top: 400px;
+            left: 400px;
             overflow: hidden;
         }
 
         .contact-button a {
             display: block;
             position: relative;
-            margin: 0;
+             margin: 0;
             padding: 0;
         }
 
         .contact-button img {
             max-width: 100%;
             height: auto;
+            transition: transform 0.3s ease-in-out;
             display: block;
-            mask: url(#contact-mask);
-            mask-mode: alpha;
-            transition: opacity 0.3s ease-in-out;
         }
 
-        .contact-button::after {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #362370; /* Set the overlay color */
-            opacity: 0;
-            transition: opacity 0.3s ease-in-out;
-            mask: url(#contact-mask);
-            mask-mode: alpha;
+        .contact-button img.hovered {
+            transform: scale(0);
         }
 
-        .contact-button:hover::after {
-            opacity: 1;
+        .contact-button:hover img.default {
+            transform: scale(0);
         }
 
-        .contact-button:hover img {
-            opacity: 0;
+        .contact-button:hover img.hovered {
+            transform: scale(1);
         }
     </style>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Single+Day&display=swap">
@@ -139,17 +127,10 @@
 
     <div class="contact-button">
         <a href="contact.html" style="text-decoration: none; color: inherit;">
-            <img src="saahilaneja.github.io/assets/contactButton.png" alt="Contact Button">
+            <img src="saahilaneja.github.io/assets/contactButton.png" alt="Contact Button" class="default">
+            <img src="saahilaneja.github.io/assets/contactHover.png" alt="Contact Hovered" class="hovered">
         </a>
     </div>
-
-    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
-        <defs>
-            <mask id="contact-mask" maskContentUnits="objectBoundingBox">
-                <circle cx="0.5" cy="0.5" r="0.4" fill="white"/>
-            </mask>
-        </defs>
-    </svg>
 
     <script src="https://unpkg.com/scrollreveal"></script>
     
