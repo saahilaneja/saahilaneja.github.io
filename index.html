@@ -102,6 +102,32 @@
                 opacity: 0;
             }
         }
+
+          .contact-button {
+            display: inline-block;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .contact-button img {
+            max-width: 100%;
+            height: auto;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .contact-button img.hovered {
+            display: none;
+        }
+
+        .contact-button:hover img.default {
+            transform: scale(0);
+        }
+
+        .contact-button:hover img.hovered {
+            display: block;
+            transform: scale(1);
+        }
+    </style>
     </style>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Single+Day&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap">
@@ -120,9 +146,13 @@
         <h1>Computer Science Student at Purdue University</h1>
     </div>
 
-    <script>
-    </script>
-    
+     <div class="contact-button">
+        <a href="contact.html" style="text-decoration: none; color: inherit;">
+            <img src="saahilaneja.github.io/assets/contactButton.png" alt="Contact Button" class="default">
+            <img src="saahilaneja.github.io/assets/contactHover.png" alt="Contact Hovered" class="hovered">
+        </a>
+    </div>
+
     <script src="https://unpkg.com/scrollreveal"></script>
     
     <script>
