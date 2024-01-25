@@ -1,0 +1,63 @@
+body {
+    background-image: url('emptyfornow.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    color: #fff;
+    font-family: 'Orbitron', sans-serif;
+    line-height: 1.6;
+}
+
+header {
+    background-color: #001f3f;
+    color: #00bfff;
+    padding: 1em;
+    text-align: center;
+}
+
+nav {
+    ul {
+        li {
+            a {
+                color: #00bfff;
+                transition: color 0.3s ease-in-out;
+
+                &:hover {
+                    color: #ff69b4;
+                }
+            }
+        }
+    }
+}
+
+main {
+    padding: 20px;
+}
+
+footer {
+    background-color: #001f3f;
+    color: #00bfff;
+    text-align: center;
+    padding: 1em;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+
+body.dark-mode {
+    background-color: #121212;
+    color: #fff;
+}
+
+.glow {
+    text-shadow: 0 0 10px #00bfff, 0 0 20px #00bfff, 0 0 30px #00bfff;
+}
+
+h1 {
+    font-size: 2em;
+    transition: text-shadow 0.5s ease-in-out;
+
+    &:hover {
+        text-shadow: 0 0 20px #ff69b4, 0 0 40px #ff69b4, 0 0 60px #ff69b4;
+    }
+}
