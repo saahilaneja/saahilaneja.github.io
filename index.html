@@ -52,18 +52,18 @@
         }
 
         #header {
-    position: absolute;
-    top: 80%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
-    width: 100%;
-    color: #fff;
-    font-family: 'Single Day', monospace;
-    text-shadow: 4px 4px 6px rgba(0, 0, 0, 0.9);
-    opacity: 0;
-    animation: fadeIn 2s ease-in-out forwards;
-}
+            position: absolute;
+            top: 80%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            width: 100%;
+            color: #fff;
+            font-family: 'Single Day', monospace;
+            text-shadow: 4px 4px 6px rgba(0, 0, 0, 0.9);
+            opacity: 0;
+            animation: fadeIn 2s ease-in-out forwards;
+        }
 
         #header, nav {
             opacity: 0;
@@ -103,20 +103,23 @@
             }
         }
 
-          .contact-button {
+        .contact-button {
             display: inline-block;
             position: relative;
             overflow: hidden;
+            margin-top: 400px;
+            margin-right: 600px;
         }
 
         .contact-button img {
             max-width: 100%;
             height: auto;
             transition: transform 0.3s ease-in-out;
+            display: block;
         }
 
         .contact-button img.hovered {
-            display: none;
+            transform: scale(0);
         }
 
         .contact-button:hover img.default {
@@ -124,10 +127,8 @@
         }
 
         .contact-button:hover img.hovered {
-            display: block;
             transform: scale(1);
         }
-    </style>
     </style>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Single+Day&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap">
@@ -146,7 +147,7 @@
         <h1>Computer Science Student at Purdue University</h1>
     </div>
 
-     <div class="contact-button">
+    <div class="contact-button">
         <a href="contact.html" style="text-decoration: none; color: inherit;">
             <img src="saahilaneja.github.io/assets/contactButton.png" alt="Contact Button" class="default">
             <img src="saahilaneja.github.io/assets/contactHover.png" alt="Contact Hovered" class="hovered">
