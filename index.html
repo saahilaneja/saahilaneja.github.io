@@ -87,7 +87,6 @@
             position: relative;
             margin: 0;
             padding: 0;
-            background-color: purple;
         }
 
         .contact-button img {
@@ -97,16 +96,24 @@
             display: block;
         }
 
-        .contact-button img.hovered {
+        .contact-button::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: purple;
             opacity: 0;
+            transition: opacity 0.3s ease-in-out;
         }
 
-        .contact-button:hover img.default {
-            opacity: 0;
-        }
-
-        .contact-button:hover img.hovered {
+        .contact-button:hover::after {
             opacity: 1;
+        }
+
+        .contact-button:hover img {
+            opacity: 0;
         }
     </style>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Single+Day&display=swap">
@@ -128,8 +135,7 @@
 
     <div class="contact-button">
         <a href="contact.html" style="text-decoration: none; color: inherit;">
-            <img src="saahilaneja.github.io/assets/contactButton.png" alt="Contact Button" class="default">
-            <img src="saahilaneja.github.io/assets/contactHover.png" alt="Contact Hovered" class="hovered">
+            <img src="saahilaneja.github.io/assets/contactButton.png" alt="Contact Button">
         </a>
     </div>
 
