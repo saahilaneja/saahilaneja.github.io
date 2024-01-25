@@ -76,39 +76,32 @@
         }
 
         .contact-button {
-            position: relative;
-            top: 0px;
-            left: 0px;
-            overflow: hidden;
+            position: absolute;
+            top: 20px;
+            right: 20px;
         }
 
-        .contact-button {
-    position: absolute; /* Change to absolute for better positioning */
-    top: 20px; /* Adjust the top position as needed */
-    right: 20px; /* Adjust the right position as needed */
-}
+        .contact-button a {
+            display: block;
+            position: relative;
+            margin: 0;
+            padding: 0;
+        }
 
-.contact-button a {
-    display: block;
-    position: relative;
-    margin: 0;
-    padding: 0;
-}
+        .contact-button img {
+            max-width: 100%;
+            height: auto;
+            transition: transform 0.3s ease-in-out;
+            display: block;
+        }
 
-.contact-button img {
-    max-width: 100%;
-    height: auto;
-    transition: transform 0.3s ease-in-out;
-    display: block;
-}
+        .contact-button:hover img.default {
+            transform: scale(0);
+        }
 
-.contact-button:hover img.default {
-    transform: scale(0);
-}
-
-.contact-button:hover img.hovered {
-    transform: scale(1);
-}
+        .contact-button:hover img.hovered {
+            transform: scale(1);
+        }
     </style>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Single+Day&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap">
