@@ -4,22 +4,80 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Saahil</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Single+Day&display=swap">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: #000;
+            color: #fff;
+            font-family: 'Single Day', monospace;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        #header {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            width: 100%;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin: 10px 0;
+            font-family: 'Single Day', monospace;
+        }
+
+        p {
+            font-size: 1.5em;
+            margin: 10px 0;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        nav {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        nav li {
+            display: inline;
+            margin-right: 20px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #fff;
+            font-size: 1.2em;
+            font-family: 'Roboto Mono', monospace;
+        }
+    </style>
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Single+Day&display=swap">
 </head>
 <body>
+    <div id="stars"></div>
     
     <nav>
         <ul>
             <li><a href="index.html">Home</a></li>
             <li><a href="about.html">About</a></li>
-             <li><a href="projects.html">Projects</a></li>
             <li><a href="contact.html">Contact</a></li>
         </ul>
     </nav>
 
     <div id="header">
-        <h1>To Infinity, and Beyond</h1>
+        <h1>Saahil Aneja</h1>
         <p>Honors Computer Science Student at Purdue University</p>
     </div>
 
