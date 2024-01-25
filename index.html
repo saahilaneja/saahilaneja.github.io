@@ -76,36 +76,37 @@
         }
 
         .contact-button {
-            position: relative;
-            top: 400px;
-            left: 400px;
+            position: absolute;
+            top: 200px;
+            left: 200px;
             overflow: hidden;
         }
 
         .contact-button a {
             display: block;
             position: relative;
-             margin: 0;
+            margin: 0;
             padding: 0;
+            background-color: purple;
         }
 
         .contact-button img {
             max-width: 100%;
             height: auto;
-            transition: transform 0.3s ease-in-out;
+            transition: opacity 0.3s ease-in-out;
             display: block;
         }
 
         .contact-button img.hovered {
-            transform: scale(0);
+            opacity: 0;
         }
 
         .contact-button:hover img.default {
-            transform: scale(0);
+            opacity: 0;
         }
 
         .contact-button:hover img.hovered {
-            transform: scale(1);
+            opacity: 1;
         }
     </style>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Single+Day&display=swap">
