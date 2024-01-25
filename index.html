@@ -51,6 +51,20 @@
             transition: color 0.3s ease-in-out;
         }
 
+        #header {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    width: 100%;
+    color: #fff;
+    font-family: 'Single Day', monospace;
+    text-shadow: 4px 4px 6px rgba(0, 0, 0, 0.9);
+    opacity: 0;
+    animation: fadeIn 2s ease-in-out forwards;
+}
+
         #header, nav {
             opacity: 0;
             animation: fadeIn 2s ease-in-out forwards;
@@ -69,7 +83,7 @@
             font-size: 3em;
             margin: 10px 0;
             font-family: 'Single Day', monospace;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+            text-shadow: 4px 4px 6px rgba(0, 0, 0, 0.9);
         }
 
         p {
