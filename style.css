@@ -1,13 +1,13 @@
 body {
     background-color: #000;
     color: #9f00ff;
-    font-family: 'Space Grotesk', sans-serif; /* Use Space Grotesk font */
+    font-family: 'Space Grotesk', sans-serif;
     line-height: 1.6;
     margin: 0;
 }
 
 header {
-    background-color: #2a0a29;
+    background-color: #00000;
     padding: 1em;
     text-align: center;
 }
@@ -45,10 +45,6 @@ footer {
     position: fixed;
     bottom: 0;
     width: 100%;
-}
-
-.body.dark-mode {
-    background-color: #121212;
 }
 
 .glow {
