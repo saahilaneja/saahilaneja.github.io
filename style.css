@@ -1,0 +1,15 @@
+:root {
+  --bgcolor: #ffffff;
+  --maintextcolor:#000000;
+}
+
+body {
+    background-color: var(--bgcolor);
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin-top: 20%;
+}
+/* font default color */
+h1, h2, h3, h4, h5, h6, p {
+    color: var(--maintextcolor);
+}
