@@ -1,0 +1,36 @@
+body {
+    margin: 0;
+    background: black;
+    color: white;
+    font-family: monospace;
+    cursor: none;
+    overflow: hidden;
+  }
+  
+  #cursor-dot {
+    position: fixed;
+    left: 0;
+    top: 0;
+    pointer-events: none;
+    color: white;
+    font-size: 1rem;
+    transform: translate(-50%, -50%);
+  }
+  
+  header {
+    width: 100%;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+  }
+  
+  #logo {
+    font-size: 2rem;
+    letter-spacing: 0.1em;
+  }
+  
+  #face {
+    padding: 0 0.5rem;
+  }
+  
