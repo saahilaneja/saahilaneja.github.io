@@ -1,0 +1,298 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+function formatDate(ym: string) {
+  const [y, m] = ym.split('-').map(Number);
+  return `${MONTHS[m - 1]} ${y}`;
+}
+
+type Role = {
+  title: string;
+  company: string;
+  url?: string;
+  start: string;
+  end: string | null;
+  incoming?: boolean;
+  kind: 'work' | 'project';
+};
+
+const roles: Role[] = [
+  {
+    title: 'Incoming LDP Intern',
+    company: 'Textron Aviation',
+    url: 'https://www.textron.com',
+    start: '2026-01',
+    end: null,
+    incoming: true,
+    kind: 'work',
+  },
+  {
+    title: 'Co-Director',
+    company: 'jamms',
+    url: 'https://jam.ms',
+    start: '2025-09',
+    end: null,
+    kind: 'project',
+  },
+  {
+    title: 'Software Developer',
+    company: "Purdue's Rosen Center for Advanced Computing",
+    url: 'https://www.rcac.purdue.edu/envision',
+    start: '2025-01',
+    end: null,
+    kind: 'work',
+  },
+  {
+    title: 'Organizer',
+    company: 'Purdue Hackers',
+    url: 'https://www.purduehackers.com',
+    start: '2025-01',
+    end: null,
+    kind: 'project',
+  },
+  {
+    title: 'Senior Student Lab Manager',
+    company: 'Computing for Community Collaboratory',
+    url: 'https://www.c3atpurdue.org',
+    start: '2024-10',
+    end: null,
+    kind: 'work',
+  },
+  {
+    title: 'Agentic AI Intern',
+    company: 'FirstEigen',
+    start: '2025-05',
+    end: '2025-08',
+    kind: 'work',
+  },
+  {
+    title: 'Autonomous Technology Group Intern',
+    company: 'Daimler Truck North America',
+    url: 'https://www.daimlertruck.com/en',
+    start: '2024-05',
+    end: '2024-08',
+    kind: 'work',
+  },
+];
+
+function periodRange(role: Role) {
+  const range = role.end
+    ? `${formatDate(role.start)} – ${formatDate(role.end)}`
+    : `${formatDate(role.start)} – Present`;
+  return range;
+}
+---
+
+<Layout title="Work — Saahil Aneja">
+  <article class="work">
+    <header class="work__header">
+      <h1 class="work__title">Work</h1>
+      <p class="work__intro">
+        In progress.
+      </p>
+    </header>
+
+    <section class="work__grid">
+      <section class="work__column">
+        <h2 class="work__section-heading">Work</h2>
+        <ol class="work__list">
+          {roles
+            .filter((role) => role.kind === 'work')
+            .map((role) => (
+              <li class="role">
+                <div class="role__meta">
+                  {role.url ? (
+                    <a href={role.url} class="role__company" target="_blank" rel="noreferrer">{role.company}</a>
+                  ) : (
+                    <span class="role__company">{role.company}</span>
+                  )}
+                  <span class="role__period">
+                    {role.incoming ? '2026' : periodRange(role)}
+                  </span>
+                </div>
+                <h2 class="role__title">{role.title}</h2>
+              </li>
+            ))}
+        </ol>
+      </section>
+
+      <section class="work__column">
+        <h2 class="work__section-heading">Projects</h2>
+        <ol class="work__list">
+          {roles
+            .filter((role) => role.kind === 'project')
+            .map((role) => (
+              <li class="role">
+                <div class="role__meta">
+                  {role.url ? (
+                    <a href={role.url} class="role__company" target="_blank" rel="noreferrer">{role.company}</a>
+                  ) : (
+                    <span class="role__company">{role.company}</span>
+                  )}
+                  <span class="role__period">
+                    {periodRange(role)}
+                  </span>
+                </div>
+                <h2 class="role__title">{role.title}</h2>
+                {role.company === 'jamms' && (
+                  <ul class="role__projects">
+                    <li>
+                      <a href="https://store.steampowered.com/app/3852520/Spread_The_Love/" target="_blank" rel="noreferrer">
+                        Spread The Love
+                      </a>
+                    </li>
+                    <li>
+                      <a href="https://etea.cafe" target="_blank" rel="noreferrer">
+                        etea.cafe
+                      </a>
+                    </li>
+                  </ul>
+                )}
+              </li>
+            ))}
+        </ol>
+      </section>
+    </section>
+
+    <nav class="work__nav">
+      <a href="/">← Home</a>
+      <a href="/about">About →</a>
+    </nav>
+  </article>
+</Layout>
+
+<style>
+  .work {
+    max-width: 64rem;
+  }
+
+  .work__header {
+    margin-bottom: var(--space-2xl);
+  }
+
+  .work__title {
+    font-family: var(--font-display);
+    font-size: var(--text-title);
+    font-weight: 400;
+    color: var(--text);
+    margin-bottom: var(--space-md);
+  }
+
+  .work__intro {
+    font-size: var(--text-body);
+    color: var(--text-muted);
+    line-height: var(--line-body);
+  }
+
+  .work__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    gap: var(--space-2xl);
+    align-items: flex-start;
+  }
+
+  .work__column {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+
+  .work__section-heading {
+    font-size: var(--text-small);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+  }
+
+  .work__list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+  }
+
+  .role {
+    padding: var(--space-lg) 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .role:last-of-type {
+    border-bottom: none;
+  }
+
+  .role__meta {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-md);
+    margin-bottom: var(--space-sm);
+  }
+
+  .role__company {
+    font-size: var(--text-caption);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+  }
+
+  .role__period {
+    font-size: var(--text-caption);
+    color: var(--text-muted);
+  }
+
+  .role__title {
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    font-weight: 400;
+    color: var(--text);
+    margin-bottom: var(--space-sm);
+  }
+
+  .role__projects {
+    margin-top: var(--space-sm);
+    list-style: none;
+    padding-left: 0;
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--space-xs) * 0.75);
+    font-size: var(--text-small);
+  }
+
+  .role__projects li::before {
+    content: '-';
+    display: inline-block;
+    width: 0.9rem;
+    margin-right: 0.15rem;
+    color: var(--text-muted);
+  }
+
+  .role__projects a {
+    color: var(--text-muted);
+    text-decoration: none;
+  }
+
+  .role__projects a:hover {
+    color: var(--accent);
+  }
+
+  .work__nav {
+    margin-top: var(--space-2xl);
+    padding-top: var(--space-xl);
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--text-small);
+  }
+
+  .work__nav a {
+    color: var(--text-muted);
+    text-decoration: none;
+  }
+
+  .work__nav a:hover {
+    color: var(--accent);
+  }
+</style>

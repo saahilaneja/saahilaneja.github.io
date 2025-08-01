@@ -1,0 +1,439 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const FAVORITES = {
+  stories: [
+    'Scott Pilgrim',
+    'Goodnight Punpun',
+    'Durarara!!',
+    'Look Back',
+    'The Metamorphosis',
+    'No Longer Human',
+    'Chainsaw Man',
+    'The Tatami Galaxy',
+    'Mob Psycho 100',
+    'Community',
+    'Atlanta',
+    'Mr. Robot',
+    'Samurai Champloo',
+    'Mr. Plankton',
+    'Welcome to the NHK!',
+    'Soul Eater',
+    'Delicious in Dungeon',
+  ],
+  games: [
+    'Shin Megami Tensei',
+    'VA-11 Hall-A',
+    'Katana Zero',
+    'Fields of Mistria',
+    'Hollow Knight',
+    'The World Ends with You',
+    'Metaphor: Refantazio',
+    'Yakuza'
+  ],
+  music: [
+    'A$AP Rocky',
+    'Sampha',
+    'Gorillaz',
+    'Nujabes',
+    'Kendrick Lamar',
+    'Frank Ocean',
+    'N.E.R.D.',
+    'TV Girl',
+  ],
+} as const;
+---
+
+<Layout title="About — Saahil Aneja">
+  <article class="about">
+    <header class="about__header">
+      <h1 class="about__title">About</h1>
+      <p class="about__lead">
+        Blah blah blah blah blah blah blah blah blah blah blah blah.
+      </p>
+    </header>
+
+    <div class="about__body">
+      <section class="about__section">
+        <p>
+          Blah blah blah blah blah blah blah blah blah blah blah blah
+          blah blah blah blah blah blah blah blah blah blah blah blah.
+        </p>
+        <p>
+          Blah blah blah blah blah blah blah blah blah blah blah blah
+          blah blah blah blah blah blah blah blah blah blah blah blah.
+        </p>
+      </section>
+
+      <section class="about__section">
+        <div class="about__heading-row">
+          <h2 class="about__heading">Favorites</h2>
+          <button type="button" class="favorites-dice" data-dice aria-label="Reroll favorites" title="Reroll favorites">
+            <span class="dice" aria-hidden="true"></span>
+          </button>
+        </div>
+        <div class="faves">
+          <div class="faves__group">
+            <h3 class="faves__label">Stories</h3>
+            <ul class="faves__items" data-faves="stories">
+              {FAVORITES.stories.slice(0, 3).map((t) => (
+                <li>{t}</li>
+              ))}
+            </ul>
+          </div>
+          <div class="faves__group">
+            <h3 class="faves__label">Games</h3>
+            <ul class="faves__items" data-faves="games">
+              {FAVORITES.games.slice(0, 3).map((t) => (
+                <li>{t}</li>
+              ))}
+            </ul>
+          </div>
+          <div class="faves__group">
+            <h3 class="faves__label">Music</h3>
+            <ul class="faves__items" data-faves="music">
+              {FAVORITES.music.slice(0, 3).map((t) => (
+                <li>{t}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <nav class="about__nav">
+      <a href="/">← Home</a>
+      <a href="/work">Work →</a>
+    </nav>
+  </article>
+</Layout>
+
+<script define:vars={{ FAVORITES }}>
+  function pickN(arr, n) {
+    const copy = arr.slice();
+    for (let i = copy.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy
+      .slice(0, n)
+      .sort((a, b) => String(a).length - String(b).length);
+  }
+
+  function renderList(ul, items) {
+    ul.innerHTML = '';
+    for (const t of items) {
+      const li = document.createElement('li');
+      li.textContent = t;
+      ul.appendChild(li);
+    }
+  }
+
+  const timeoutState = new WeakMap();
+
+  function clearTimers(ul) {
+    const ids = timeoutState.get(ul);
+    if (Array.isArray(ids)) {
+      for (const id of ids) clearTimeout(id);
+    }
+    timeoutState.set(ul, []);
+  }
+
+  function setDiceFace(dice, face) {
+    if (!dice) return;
+    dice.dataset.face = String(face);
+  }
+
+  function randomFace() {
+    return 1 + Math.floor(Math.random() * 6);
+  }
+
+  function animateRoulette(ul, pool, onDone) {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const finalPick = pickN(pool, 3);
+    if (reduce) {
+      renderList(ul, finalPick);
+      if (typeof onDone === 'function') onDone();
+      return;
+    }
+
+    clearTimers(ul);
+    ul.dataset.spinning = 'true';
+
+    const steps = 4;
+    const stepDelay = 200;
+    const ids = [];
+
+    for (let i = 0; i < steps; i++) {
+      const isLast = i === steps - 1;
+      const id = setTimeout(() => {
+        if (isLast) {
+          renderList(ul, finalPick);
+          ul.dataset.spinning = 'false';
+          if (typeof onDone === 'function') onDone();
+        } else {
+  
+          const dice = document.querySelector('[data-dice]');
+          if (dice) setDiceFace(dice, randomFace());
+          renderList(ul, pickN(pool, 3));
+        }
+      }, i * stepDelay + Math.random() * 60);
+      ids.push(id);
+    }
+    timeoutState.set(ul, ids);
+  }
+
+  function runFavorites() {
+    const dice = document.querySelector('[data-dice]');
+    if (dice) {
+      dice.dataset.rolling = 'true';
+      setDiceFace(dice, randomFace());
+    }
+
+    const uls = Array.from(document.querySelectorAll('.faves__items[data-faves]'));
+    let remaining = uls.length;
+
+    function done() {
+      remaining -= 1;
+      if (remaining <= 0) {
+        if (dice) {
+          dice.dataset.rolling = 'false';
+          setDiceFace(dice, randomFace());
+        }
+      }
+    }
+
+    uls.forEach((ul) => {
+      const key = ul.getAttribute('data-faves');
+      const pool = FAVORITES?.[key] ?? [];
+      if (!Array.isArray(pool) || pool.length < 3) return;
+      animateRoulette(ul, pool, done);
+    });
+  }
+
+  function bindDice() {
+    const dice = document.querySelector('[data-dice]');
+    if (!dice) return;
+    dice.addEventListener('click', () => runFavorites());
+  }
+
+  runFavorites();
+  bindDice();
+  document.addEventListener('astro:page-load', () => {
+    runFavorites();
+    bindDice();
+  });
+</script>
+
+<style>
+  .about {
+    max-width: 40rem;
+  }
+
+  .about__header {
+    margin-bottom: var(--space-2xl);
+  }
+
+  .about__title {
+    font-family: var(--font-display);
+    font-size: var(--text-title);
+    font-weight: 400;
+    color: var(--text);
+    margin-bottom: var(--space-md);
+  }
+
+  .about__lead {
+    font-size: var(--text-body);
+    color: var(--text-muted);
+    line-height: var(--line-body);
+  }
+
+  .about__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xl);
+  }
+
+  .about__section p {
+    font-size: var(--text-body);
+    color: var(--text);
+    margin-bottom: var(--space-md);
+  }
+
+  .about__section p:last-child {
+    margin-bottom: 0;
+  }
+
+  .about__heading-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
+  }
+
+  .about__heading {
+    font-family: var(--font-display);
+    font-size: var(--text-small);
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+  }
+
+  .favorites-dice {
+    appearance: none;
+    -webkit-appearance: none;
+    border: none;
+    padding: 0;
+    background: none;
+    opacity: 0.75;
+    transform-origin: center;
+    transition: opacity 0.2s var(--ease);
+    cursor: pointer;
+  }
+
+  .favorites-dice[data-rolling='true'] {
+    opacity: 1;
+  }
+
+  .favorites-dice:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 4px;
+    border-radius: 7px;
+  }
+
+  .dice {
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    position: relative;
+    box-shadow: 0 1px 0 color-mix(in srgb, var(--text) 10%, transparent);
+  }
+
+  .dice::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 5px;
+    background:
+      radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--text) 70%, transparent) 0 1.1px, transparent 1.8px);
+    opacity: 0.9;
+  }
+
+  .favorites-dice[data-rolling='true'] .dice {
+    animation: dice-nudge 900ms ease-in-out infinite;
+  }
+
+  .favorites-dice[data-rolling='true'] .dice::before {
+    /* keep pips readable; faces are swapped by JS */
+  }
+
+  .favorites-dice[data-face='1'] .dice::before {
+    background:
+      radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--text) 70%, transparent) 0 1.1px, transparent 1.8px);
+  }
+  .favorites-dice[data-face='2'] .dice::before {
+    background:
+      radial-gradient(circle at 30% 30%, color-mix(in srgb, var(--text) 70%, transparent) 0 1.1px, transparent 1.8px),
+      radial-gradient(circle at 70% 70%, color-mix(in srgb, var(--text) 70%, transparent) 0 1.1px, transparent 1.8px);
+  }
+  .favorites-dice[data-face='3'] .dice::before {
+    background:
+      radial-gradient(circle at 30% 30%, color-mix(in srgb, var(--text) 70%, transparent) 0 1.1px, transparent 1.8px),
+      radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--text) 70%, transparent) 0 1.1px, transparent 1.8px),
+      radial-gradient(circle at 70% 70%, color-mix(in srgb, var(--text) 70%, transparent) 0 1.1px, transparent 1.8px);
+  }
+  .favorites-dice[data-face='4'] .dice::before {
+    background:
+      radial-gradient(circle at 30% 30%, color-mix(in srgb, var(--text) 70%, transparent) 0 1.1px, transparent 1.8px),
+      radial-gradient(circle at 70% 30%, color-mix(in srgb, var(--text) 70%, transparent) 0 1.1px, transparent 1.8px),
+      radial-gradient(circle at 30% 70%, color-mix(in srgb, var(--text) 70%, transparent) 0 1.1px, transparent 1.8px),
+      radial-gradient(circle at 70% 70%, color-mix(in srgb, var(--text) 70%, transparent) 0 1.1px, transparent 1.8px);
+  }
+  .favorites-dice[data-face='5'] .dice::before {
+    background:
+      radial-gradient(circle at 30% 30%, color-mix(in srgb, var(--text) 70%, transparent) 0 1.1px, transparent 1.8px),
+      radial-gradient(circle at 70% 30%, color-mix(in srgb, var(--text) 70%, transparent) 0 1.1px, transparent 1.8px),
+      radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--text) 70%, transparent) 0 1.1px, transparent 1.8px),
+      radial-gradient(circle at 30% 70%, color-mix(in srgb, var(--text) 70%, transparent) 0 1.1px, transparent 1.8px),
+      radial-gradient(circle at 70% 70%, color-mix(in srgb, var(--text) 70%, transparent) 0 1.1px, transparent 1.8px);
+  }
+  .favorites-dice[data-face='6'] .dice::before {
+    background:
+      radial-gradient(circle at 30% 30%, color-mix(in srgb, var(--text) 70%, transparent) 0 1.1px, transparent 1.8px),
+      radial-gradient(circle at 70% 30%, color-mix(in srgb, var(--text) 70%, transparent) 0 1.1px, transparent 1.8px),
+      radial-gradient(circle at 30% 50%, color-mix(in srgb, var(--text) 70%, transparent) 0 1.1px, transparent 1.8px),
+      radial-gradient(circle at 70% 50%, color-mix(in srgb, var(--text) 70%, transparent) 0 1.1px, transparent 1.8px),
+      radial-gradient(circle at 30% 70%, color-mix(in srgb, var(--text) 70%, transparent) 0 1.1px, transparent 1.8px),
+      radial-gradient(circle at 70% 70%, color-mix(in srgb, var(--text) 70%, transparent) 0 1.1px, transparent 1.8px);
+  }
+
+  @keyframes dice-nudge {
+    0% { transform: rotate(0deg); }
+    35% { transform: rotate(-6deg); }
+    70% { transform: rotate(6deg); }
+    100% { transform: rotate(0deg); }
+  }
+
+  .faves {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+    gap: var(--space-xl);
+  }
+
+  .faves__group h3 {
+    font-size: var(--text-caption);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    margin-bottom: var(--space-sm);
+  }
+
+  .faves__group ul {
+    list-style: none;
+  }
+
+  .faves__items li {
+    font-size: var(--text-small);
+    color: var(--text);
+    padding: var(--space-xs) 0;
+    border-bottom: 1px solid var(--border);
+    transition:
+      opacity 0.2s var(--ease),
+      transform 0.2s var(--ease),
+      color 0.2s var(--ease);
+  }
+
+  .faves__items li:last-child {
+    border-bottom: none;
+  }
+
+  .faves__items[data-spinning="true"] li {
+    opacity: 0.6;
+    transform: translateY(-2px);
+    color: var(--text-muted);
+  }
+
+  .about__nav {
+    margin-top: var(--space-2xl);
+    padding-top: var(--space-xl);
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--text-small);
+  }
+
+  .about__nav a {
+    color: var(--text-muted);
+    text-decoration: none;
+  }
+
+  .about__nav a:hover {
+    color: var(--accent);
+  }
+</style>

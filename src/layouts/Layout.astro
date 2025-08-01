@@ -1,22 +1,435 @@
+---
+import { ClientRouter } from 'astro:transitions';
+
+interface Props {
+  title?: string;
+}
+
+const { title = "Saahil Aneja" } = Astro.props;
+const lastfmApiKey = typeof import.meta.env.PUBLIC_LASTFM_API_KEY === 'string' ? import.meta.env.PUBLIC_LASTFM_API_KEY : '';
+const lastfmUser = 'anejpg';
+---
+
 <!doctype html>
-<html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
-	</head>
-	<body>
-		<slot />
-	</body>
+<html lang="en" id="html-root">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preload" href="/fonts/PixelHackers.ttf" as="font" type="font/ttf" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <ClientRouter />
+    <script is:inline>
+      (function() {
+        var k = 'saahil-theme';
+        function apply() {
+          var s = null;
+          try { s = localStorage.getItem(k); } catch (e) {}
+          var dark = s === 'dark' || (!s && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          if (dark) document.documentElement.setAttribute('data-theme', 'dark');
+          else document.documentElement.removeAttribute('data-theme');
+        }
+        apply();
+        document.addEventListener('astro:after-swap', apply);
+      })();
+    </script>
+  </head>
+  <body>
+    <a href="#main" class="skip-link">Skip to content</a>
+
+    <header class="header">
+      <div class="header__inner">
+        <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">^_^</button>
+        <nav class="nav" aria-label="Main">
+          <a href="/" data-nav="home">Home</a>
+          <a href="/about" data-nav="about">About</a>
+          <a href="/work" data-nav="work">Work</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" class="main">
+      <slot />
+    </main>
+
+    <footer class="footer">
+      <div class="footer__inner">
+        <div class="now" aria-hidden="true">
+          <span class="now__label">Now playing</span>
+          <span class="now__track" id="listening-track">—</span>
+        </div>
+        <div class="footer__art" id="listening-art-wrap" hidden>
+          <img id="listening-art" alt="" />
+        </div>
+        <p class="footer__fonts">
+          Typed with <span class="footer__font footer__font--display">Pixel Hackers</span> and <span class="footer__font footer__font--body">DM Sans</span>.
+        </p>
+      </div>
+    </footer>
+  </body>
 </html>
 
-<style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
+<script define:vars={{ lastfmUser, lastfmApiKey }}>
+  async function fetchListening() {
+    const textEl = document.getElementById('listening-track');
+    const artEl = document.getElementById('listening-art');
+    const artWrap = document.getElementById('listening-art-wrap');
+    if (!textEl || !artEl || !artWrap || !lastfmUser || !lastfmApiKey) return;
+    try {
+      const url = new URL('https://ws.audioscrobbler.com/2.0/');
+      url.searchParams.set('method', 'user.getrecenttracks');
+      url.searchParams.set('user', lastfmUser);
+      url.searchParams.set('api_key', lastfmApiKey);
+      url.searchParams.set('format', 'json');
+      url.searchParams.set('limit', '1');
+      const res = await fetch(url.toString());
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      const track = data?.recenttracks?.track?.[0] ?? data?.recenttracks?.track;
+      if (!track) {
+        textEl.textContent = '—';
+        artWrap.hidden = true;
+        return;
+      }
+      const name = track.name;
+      const artist = track.artist?.['#text'] ?? '';
+      textEl.textContent = `${name} · ${artist}`;
+      const imgs = Array.isArray(track.image) ? track.image : [];
+      const large = imgs.find((i) => i.size === 'large' && i['#text']);
+      const med = imgs.find((i) => i.size === 'medium' && i['#text']);
+      const src = large?.['#text'] || med?.['#text'] || imgs[0]?.['#text'] || '';
+      if (src) {
+        artEl.src = src;
+        artWrap.hidden = false;
+      } else {
+        artWrap.hidden = true;
+      }
+    } catch {
+      textEl.textContent = '—';
+      if (artWrap) artWrap.hidden = true;
+    }
+  }
+
+  fetchListening();
+  setInterval(fetchListening, 30000);
+  document.addEventListener('astro:after-swap', fetchListening);
+
+  const path = window.location.pathname.replace(/\/$/, '') || '/';
+  const nav = path === '/' ? 'home' : path.slice(1);
+  document.querySelectorAll('.nav a[data-nav]').forEach((a) => {
+    a.removeAttribute('aria-current');
+    if (a.getAttribute('data-nav') === nav) a.setAttribute('aria-current', 'page');
+  });
+
+  const STORAGE_KEY = 'saahil-theme';
+
+  function getStored() {
+    try {
+      return localStorage.getItem(STORAGE_KEY);
+    } catch {
+      return null;
+    }
+  }
+
+  function setStored(value) {
+    try {
+      localStorage.setItem(STORAGE_KEY, value);
+    } catch {}
+  }
+
+  function isDark() {
+    const stored = getStored();
+    if (stored === 'dark' || stored === 'light') return stored === 'dark';
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+
+  function applyTheme(dark) {
+    const root = document.documentElement;
+    const toggle = document.getElementById('theme-toggle');
+    if (dark) {
+      root.setAttribute('data-theme', 'dark');
+      if (toggle) {
+        toggle.textContent = '^_^';
+        toggle.setAttribute('aria-label', 'Switch to light mode');
+        toggle.setAttribute('title', 'Switch to light mode');
+      }
+    } else {
+      root.removeAttribute('data-theme');
+      if (toggle) {
+        toggle.textContent = '^_^';
+        toggle.setAttribute('aria-label', 'Switch to dark mode');
+        toggle.setAttribute('title', 'Switch to dark mode');
+      }
+    }
+    setStored(dark ? 'dark' : 'light');
+  }
+
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('#theme-toggle')) return;
+    applyTheme(!isDark());
+  });
+
+  applyTheme(isDark());
+
+  document.addEventListener('astro:after-swap', () => {
+    applyTheme(isDark());
+  });
+</script>
+
+<style is:global>
+  @font-face {
+    font-family: 'PixelHackers';
+    src: url('/fonts/PixelHackers.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  *, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  :root {
+    --bg: #f8f6f2;
+    --bg-card: #fff;
+    --text: #1c1b1f;
+    --text-muted: #5c5b61;
+    --accent: #7c3aed;
+    --accent-hover: #6d28d9;
+    --border: #e8e6e2;
+    --font-display: 'PixelHackers', 'Georgia', serif;
+    --font-body: 'DM Sans', system-ui, -apple-system, sans-serif;
+    --space-xs: 0.25rem;
+    --space-sm: 0.5rem;
+    --space-md: 1rem;
+    --space-lg: 1.5rem;
+    --space-xl: 2rem;
+    --space-2xl: 3rem;
+    --space-3xl: 4rem;
+    --text-hero: clamp(2.5rem, 8vw, 4.5rem);
+    --text-title: clamp(1.5rem, 3vw, 2.25rem);
+    --text-body: 1.0625rem;
+    --text-small: 0.9375rem;
+    --text-caption: 0.8125rem;
+    --line-tight: 1.2;
+    --line-body: 1.6;
+    --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+    --radius: 6px;
+  }
+
+  [data-theme="dark"] {
+    --bg: #1a1917;
+    --bg-card: #242220;
+    --text: #eae8e4;
+    --text-muted: #9a9894;
+    --accent: #a78bfa;
+    --accent-hover: #c4b5fd;
+    --border: #3a3836;
+  }
+
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--text);
+    line-height: var(--line-body);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .skip-link {
+    position: absolute;
+    top: -100%;
+    left: var(--space-md);
+    z-index: 100;
+    padding: var(--space-sm) var(--space-md);
+    background: var(--text);
+    color: var(--bg);
+    font-size: var(--text-small);
+    text-decoration: none;
+    border-radius: var(--radius);
+    transition: top 0.2s var(--ease);
+  }
+
+  .skip-link:focus {
+    top: var(--space-md);
+  }
+
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: color-mix(in srgb, var(--bg) 92%, transparent);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .header__inner {
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: var(--space-md) var(--space-lg);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .theme-toggle {
+    font-family: var(--font-display);
+    font-size: 2.4rem;
+    line-height: 1;
+    color: var(--text);
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: color 0.2s var(--ease);
+  }
+
+  .theme-toggle:hover {
+    color: var(--accent);
+  }
+
+  .theme-toggle:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .nav {
+    display: flex;
+    gap: var(--space-xl);
+  }
+
+  .nav a {
+    font-size: var(--text-small);
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s var(--ease);
+  }
+
+  .nav a:hover,
+  .nav a[aria-current="page"] {
+    color: var(--accent);
+  }
+
+  .main {
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: var(--space-3xl) var(--space-lg);
+    flex: 1;
+    width: 100%;
+  }
+
+  .footer {
+    margin-top: auto;
+    border-top: 1px solid var(--border);
+    background: var(--bg-card);
+  }
+
+  .footer__inner {
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: var(--space-lg);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+  }
+
+  .now {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+
+  .now__label {
+    font-size: var(--text-caption);
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .now__track {
+    font-size: var(--text-small);
+    color: var(--text);
+    max-width: 20rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .footer__art {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .footer__art[hidden] {
+    display: none;
+  }
+
+  .footer__art img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .footer__fonts {
+    width: 100%;
+    margin: var(--space-md) 0 0;
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--border);
+    font-size: var(--text-caption);
+    color: var(--text-muted);
+  }
+
+  .footer__font--display {
+    font-family: var(--font-display);
+  }
+
+  .footer__font--body {
+    font-family: var(--font-body);
+  }
+
+  a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: var(--accent-hover);
+    text-decoration: underline;
+  }
+
+  a:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: var(--accent);
+    color: var(--bg);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
 </style>

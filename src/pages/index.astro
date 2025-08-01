@@ -1,11 +1,62 @@
 ---
-import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
 ---
 
 <Layout>
-	<Welcome />
+  <article class="hero">
+    <h1 class="hero__title">Saahil Aneja</h1>
+    <p class="hero__tagline">
+      Junior at Purdue studying Computer Science and Psychology.
+    </p>
+    <div class="hero__links">
+      <a href="mailto:saahil@jam.ms">Email</a>
+      <a href="https://github.com/saahilaneja" target="_blank" rel="noreferrer">GitHub</a>
+      <a href="https://linkedin.com/in/saahilaneja" target="_blank" rel="noreferrer">LinkedIn</a>
+      <a href="https://jam.ms" target="_blank" rel="noreferrer">Jamms</a>
+    </div>
+  </article>
 </Layout>
+
+<style>
+  .hero {
+    padding: var(--space-2xl) 0;
+    max-width: 36rem;
+  }
+
+  .hero__title {
+    font-family: var(--font-display);
+    font-size: var(--text-hero);
+    font-weight: 400;
+    line-height: var(--line-tight);
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin-bottom: var(--space-lg);
+  }
+
+  .hero__tagline {
+    font-size: var(--text-body);
+    color: var(--text-muted);
+    line-height: var(--line-body);
+    margin-bottom: var(--space-xl);
+  }
+
+  .hero__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-md) var(--space-xl);
+    font-size: var(--text-small);
+  }
+
+  .hero__links a {
+    color: var(--text);
+    text-decoration: none;
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 2px;
+    transition: color 0.2s var(--ease), border-color 0.2s var(--ease);
+  }
+
+  .hero__links a:hover {
+    color: var(--accent);
+    border-bottom-color: var(--accent-hover);
+  }
+</style>
