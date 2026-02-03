@@ -1,11 +1,62 @@
 ---
-import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
 ---
 
 <Layout>
-	<Welcome />
+	<main class="container">
+		<h1 class="title">(*o*)</h1>
+		<p class="subtitle">saahil aneja</p>
+		
+		<nav class="links">
+			<a href="https://github.com/saahilaneja" target="_blank">github</a>
+			<a href="https://linkedin.com/in/saahilaneja" target="_blank">linkedin</a>
+			<a href="mailto:aneja0@purdue.edu">email</a>
+		</nav>
+	</main>
 </Layout>
+
+<style>
+	.container {
+		min-height: 100vh;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		padding: 2rem;
+		text-align: center;
+	}
+
+	.title {
+		font-family: 'Press Start 2P', cursive;
+		font-size: clamp(1.5rem, 5vw, 3rem);
+		color: #e0e0e0;
+		margin-bottom: 1rem;
+		letter-spacing: 0.1em;
+	}
+
+	.subtitle {
+		font-family: 'VT323', monospace;
+		font-size: 1.5rem;
+		color: #888;
+		margin-bottom: 3rem;
+	}
+
+	.links {
+		display: flex;
+		gap: 2rem;
+		flex-wrap: wrap;
+		justify-content: center;
+	}
+
+	.links a {
+		font-family: 'VT323', monospace;
+		font-size: 1.3rem;
+		color: #666;
+		transition: color 0.2s;
+	}
+
+	.links a:hover {
+		color: #fff;
+	}
+</style>
+
