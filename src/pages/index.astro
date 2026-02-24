@@ -3,60 +3,95 @@ import Layout from '../layouts/Layout.astro';
 ---
 
 <Layout>
-	<main class="container">
-		<h1 class="title">(*o*)</h1>
-		<p class="subtitle">saahil aneja</p>
-		
-		<nav class="links">
-			<a href="https://github.com/saahilaneja" target="_blank">github</a>
-			<a href="https://linkedin.com/in/saahilaneja" target="_blank">linkedin</a>
-			<a href="mailto:aneja0@purdue.edu">email</a>
-		</nav>
-	</main>
+  <main class="home">
+    <section class="hero">
+      <p class="subtitle">saahil aneja</p>
+      <p class="blurb">
+        blah blah blah
+      </p>
+    </section>
+
+    <section class="contact" id="contact">
+      <p class="contact-intro">
+        contact:
+      </p>
+      <div class="contact-links">
+        <a href="mailto:saahil@jam.ms">email</a>
+        <a href="https://github.com/saahilaneja" target="_blank" rel="noreferrer">github</a>
+        <a href="https://linkedin.com/in/saahilaneja" target="_blank" rel="noreferrer">linkedin</a>
+      </div>
+    </section>
+  </main>
 </Layout>
 
 <style>
-	.container {
-		min-height: 100vh;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		padding: 2rem;
-		text-align: center;
-	}
+  .home {
+    min-height: calc(100vh - 6rem);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1.75rem;
+  }
 
-	.title {
-		font-family: 'Press Start 2P', cursive;
-		font-size: clamp(1.5rem, 5vw, 3rem);
-		color: #e0e0e0;
-		margin-bottom: 1rem;
-		letter-spacing: 0.1em;
-	}
+  .subtitle {
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    color: #e0e0e0;
+    margin-bottom: 0.75rem;
+    letter-spacing: 0.1em;
+  }
 
-	.subtitle {
-		font-family: 'VT323', monospace;
-		font-size: 1.5rem;
-		color: #888;
-		margin-bottom: 3rem;
-	}
+  .subtitle {
+    font-size: 1.6rem;
+    color: #888;
+    margin-bottom: 0.5rem;
+  }
 
-	.links {
-		display: flex;
-		gap: 2rem;
-		flex-wrap: wrap;
-		justify-content: center;
-	}
+  .hero {
+    text-align: left;
+  }
 
-	.links a {
-		font-family: 'VT323', monospace;
-		font-size: 1.3rem;
-		color: #666;
-		transition: color 0.2s;
-	}
+  .blurb {
+    font-size: 1.1rem;
+    color: #a0a0a0;
+    max-width: 32rem;
+  }
 
-	.links a:hover {
-		color: #fff;
-	}
+  .contact {
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+    gap: 0.75rem;
+  }
+
+  .contact-intro {
+    color: #999;
+  }
+
+  .contact-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+  }
+
+  .contact-links a {
+    font-size: 1.2rem;
+    color: #c0c0c0;
+  }
+
+  .contact-links a:hover {
+    color: #ffffff;
+  }
+
+  @media (max-width: 768px) {
+    .home {
+      min-height: auto;
+      padding-top: 1rem;
+    }
+
+    .contact {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
 </style>
 

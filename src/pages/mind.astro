@@ -1,0 +1,169 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const posts = [
+	{
+		slug: 'welcome',
+		title: 'blah blah',
+		date: '2026-02-24',
+		summary: 'blah blah blah',
+	},
+	{
+		slug: 'building-things',
+		title: 'blah blah',
+		date: '2026-02-24',
+		summary: 'blah blah blah',
+	},
+];
+---
+
+<Layout title="mind — saahil">
+	<main class="page">
+		<header class="page-header">
+			<h1>blah blah</h1>
+			<p>blah blah blah</p>
+		</header>
+
+		<section class="section mind-grid">
+			<div class="mind-main">
+				<h2>blah blah</h2>
+				<div class="posts">
+					{posts.map((post) => (
+						<article class="post" data-slug={post.slug}>
+							<p class="post-date">{post.date}</p>
+							<h3>{post.title}</h3>
+							<p class="post-summary">{post.summary}</p>
+							<p class="post-meta">blah blah blah</p>
+						</article>
+					))}
+				</div>
+			</div>
+
+			<aside class="mind-notes">
+				<h2>blah blah</h2>
+				<ul class="notes">
+					<li>blah blah blah</li>
+					<li>blah blah blah</li>
+					<li>blah blah blah</li>
+				</ul>
+			</aside>
+		</section>
+
+		<footer class="page-footer">
+			<a href="/">blah blah</a>
+			<span>·</span>
+			<a href="/about">blah blah</a>
+			<span>·</span>
+			<a href="/work">blah blah</a>
+		</footer>
+	</main>
+</Layout>
+
+<style>
+	.page {
+		display: flex;
+		flex-direction: column;
+		gap: 2.25rem;
+	}
+
+	.page-header h1 {
+		font-size: clamp(1.4rem, 3vw, 2rem);
+		margin-bottom: 0.4rem;
+	}
+
+	.page-header p {
+		color: var(--text-secondary);
+		font-size: 1.05rem;
+		max-width: 36rem;
+	}
+
+	.section {
+		display: flex;
+		flex-direction: column;
+		gap: 1.1rem;
+	}
+
+	.section + .section {
+		border-top: 1px solid rgba(255, 255, 255, 0.08);
+		padding-top: 1.75rem;
+	}
+
+	.section h2 {
+		font-size: 1.1rem;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		color: var(--text-secondary);
+	}
+
+	.mind-grid {
+		display: grid;
+		grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+		gap: 2rem;
+		align-items: flex-start;
+	}
+
+	.mind-main {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+	}
+
+	.mind-notes {
+		display: flex;
+		flex-direction: column;
+		gap: 0.8rem;
+	}
+
+	.posts {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+	}
+
+	.post {
+		border-radius: 0.75rem;
+		border: 1px solid rgba(255, 255, 255, 0.08);
+		padding: 1rem 1.1rem;
+		background: var(--bg-medium);
+		display: flex;
+		flex-direction: column;
+		gap: 0.4rem;
+	}
+
+	.post-date {
+		font-size: 0.9rem;
+		color: var(--text-secondary);
+	}
+
+	.post h3 {
+		font-size: 1.05rem;
+	}
+
+	.post-summary {
+		font-size: 1rem;
+	}
+
+	.post-meta {
+		font-size: 0.9rem;
+		color: var(--text-secondary);
+	}
+
+	.notes {
+		list-style: none;
+		display: flex;
+		flex-direction: column;
+		gap: 0.4rem;
+		font-size: 0.98rem;
+	}
+
+	.page-footer {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		gap: 0.5rem;
+		font-size: 1rem;
+		color: var(--text-secondary);
+		margin-top: 1.5rem;
+	}
+</style>
+
