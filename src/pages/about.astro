@@ -1,5 +1,37 @@
 ---
 import Layout from '../layouts/Layout.astro';
+
+const apiKey = import.meta.env.PUBLIC_LASTFM_API_KEY;
+
+async function getTopAlbums(artist: string, limit = 6) {
+  if (!apiKey) return [];
+  const url = new URL('https://ws.audioscrobbler.com/2.0/');
+  url.searchParams.set('method', 'artist.gettopalbums');
+  url.searchParams.set('artist', artist);
+  url.searchParams.set('api_key', apiKey);
+  url.searchParams.set('format', 'json');
+  url.searchParams.set('limit', String(limit));
+  const res = await fetch(url.toString());
+  if (!res.ok) return [];
+  const data = await res.json();
+  const albums = data?.topalbums?.album ?? [];
+  return albums
+    .filter((a: any) => a.image?.length)
+    .map((a: any) => {
+      const imgs = Array.isArray(a.image) ? a.image : [];
+      const large = imgs.find((i: any) => i.size === 'large' && i['#text']);
+      const med = imgs.find((i: any) => i.size === 'medium' && i['#text']);
+      const img = large?.['#text'] || med?.['#text'] || imgs[0]?.['#text'] || '';
+      return { name: a.name ?? '', imageUrl: img };
+    })
+    .filter((a: { imageUrl: string }) => a.imageUrl);
+}
+
+const [rockyAlbums, kendrickAlbums] = await Promise.all([
+  getTopAlbums('A$AP Rocky', 8),
+  getTopAlbums('Kendrick Lamar', 8),
+]);
+const vinylCovers = [...rockyAlbums, ...kendrickAlbums];
 ---
 
 <Layout title="about - saahil">
@@ -28,24 +60,63 @@ import Layout from '../layouts/Layout.astro';
 
       <section class="section about-main">
         <h2>my favorites</h2>
-        <div class="enjoy-list">
-          <p class="enjoy-row">
-            <span class="enjoy-label">GAMES:</span>
-            <span class="enjoy-items">Persona 3, VA-11 Hall-A, Fields of Mistria.</span>
-          </p>
-          <p class="enjoy-row">
-            <span class="enjoy-label">BOOKS:</span>
-            <span class="enjoy-items">No Longer Human, The Metamorphosis, Goodnight Punpun.</span>
-          </p>
-          <p class="enjoy-row">
-            <span class="enjoy-label">MUSIC:</span>
-            <span class="enjoy-items">ASAP Rocky, Sampha, N.E.R.D., Nujabes.</span>
-          </p>
-          <p class="enjoy-row">
-            <span class="enjoy-label">MOVIES:</span>
-            <span class="enjoy-items">Scott Pilgrim, Her, Look Back, 3 Idiots
-            </span>
-          </p>
+
+        {vinylCovers.length > 0 && (
+          <>
+            <p class="vinyl-label">vinyl collection</p>
+            <div class="vinyl-scroll-wrap" aria-hidden="true">
+              <div class="vinyl-scroll-track">
+                {vinylCovers.map((a) => (
+                  <a class="vinyl-cover" title={a.name}>
+                    <img src={a.imageUrl} alt={a.name} width="160" height="160" loading="lazy" />
+                  </a>
+                ))}
+                {vinylCovers.map((a) => (
+                  <a class="vinyl-cover" title={a.name}>
+                    <img src={a.imageUrl} alt={a.name} width="160" height="160" loading="lazy" />
+                  </a>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
+
+        <div class="favorites">
+          <div class="favorite-group">
+            <h3 class="favorite-category">games</h3>
+            <ul class="favorite-items">
+              <li>Persona 3</li>
+              <li>VA-11 Hall-A</li>
+              <li>Fields of Mistria</li>
+            </ul>
+          </div>
+
+          <div class="favorite-group">
+            <h3 class="favorite-category">books</h3>
+            <ul class="favorite-items">
+              <li>No Longer Human</li>
+              <li>The Metamorphosis</li>
+              <li>Goodnight Punpun</li>
+            </ul>
+          </div>
+
+          <div class="favorite-group">
+            <h3 class="favorite-category">music</h3>
+            <ul class="favorite-items">
+              <li>ASAP Rocky</li>
+              <li>Sampha</li>
+              <li>N.E.R.D.</li>
+            </ul>
+          </div>
+
+          <div class="favorite-group">
+            <h3 class="favorite-category">movies</h3>
+            <ul class="favorite-items">
+              <li>Scott Pilgrim</li>
+              <li>Look Back</li>
+              <li>Her</li>
+            </ul>
+          </div>
         </div>
       </section>
     </section>
@@ -54,11 +125,25 @@ import Layout from '../layouts/Layout.astro';
       <a href="/">home</a>
       <span>·</span>
       <a href="/work">work</a>
-      <span>·</span>
-      <a href="/mind">mind</a>
     </footer>
   </main>
 </Layout>
+
+<script>
+  import $ from 'jquery';
+  import tilt from 'tilt.js';
+  tilt(window, $);
+  $(function () {
+    $('.vinyl-cover').tilt({
+      maxTilt: 28,
+      perspective: 600,
+      glare: true,
+      maxGlare: 0.25,
+      scale: 1,
+      speed: 350,
+    });
+  });
+</script>
 
 <style>
   .page {
@@ -115,30 +200,110 @@ import Layout from '../layouts/Layout.astro';
     max-width: 32rem;
   }
 
-  .enjoy-list {
+  .vinyl-scroll-wrap {
+    margin: 1rem 0 1.25rem;
+    padding: 28px 0;
+    overflow: hidden;
+    mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  }
+
+  .vinyl-label {
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+  }
+
+  .vinyl-scroll-track {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: max-content;
+    animation: vinyl-scroll 45s linear infinite;
+    margin: -28px 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .vinyl-scroll-track {
+      animation: none;
+    }
+  }
+
+  .vinyl-scroll-track:hover {
+    animation-play-state: paused;
+  }
+
+  .vinyl-cover {
+    flex-shrink: 0;
+    width: 88px;
+    height: 88px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 2px solid rgba(255, 255, 255, 0.06);
+    box-shadow:
+      0 4px 12px rgba(0, 0, 0, 0.4),
+      0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+    transition: border-color 0.2s ease, box-shadow 0.25s ease;
+  }
+
+  .vinyl-cover:hover {
+    border-color: rgba(192, 132, 252, 0.35);
+    box-shadow:
+      0 8px 24px rgba(0, 0, 0, 0.5),
+      0 0 20px rgba(192, 132, 252, 0.12),
+      0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+  }
+
+  .vinyl-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    pointer-events: none;
+  }
+
+  @keyframes vinyl-scroll {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  .favorites {
     display: flex;
     flex-direction: column;
-    gap: 0.6rem;
-    margin-top: 0.5rem;
+    gap: 1rem;
+    margin-top: 0.75rem;
   }
 
-  .enjoy-row {
-    font-size: 1rem;
+  .favorite-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
   }
 
-  .enjoy-label {
-    display: inline-block;
-    min-width: 6.5rem;
+  .favorite-category {
+    font-size: 0.85rem;
     letter-spacing: 0.08em;
-    font-size: 1rem;
     text-transform: uppercase;
-    color: var(--text-primary);
-    font-weight: 600;
+    color: var(--text-secondary);
   }
 
-  .enjoy-items {
-    color: var(--text-secondary);
-    font-size: 0.95rem;
+  .favorite-items {
+    list-style: none;
+    padding-left: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    font-size: 0.98rem;
+  }
+
+  .favorite-items li {
+    color: var(--text-primary);
   }
 
   .page-footer {

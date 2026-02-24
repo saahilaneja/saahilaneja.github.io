@@ -4,6 +4,8 @@ interface Props {
 }
 
 const { title = "saahil" } = Astro.props;
+const lastfmApiKey = typeof import.meta.env.PUBLIC_LASTFM_API_KEY === 'string' ? import.meta.env.PUBLIC_LASTFM_API_KEY : '';
+const lastfmUser = 'anejpg';
 ---
 
 <!doctype html>
@@ -24,7 +26,6 @@ const { title = "saahil" } = Astro.props;
 				<nav class="site-nav">
 					<a href="/about">about</a>
 					<a href="/work">work</a>
-					<a href="/mind">mind</a>
 				</nav>
 			</div>
 		</header>
@@ -35,20 +36,25 @@ const { title = "saahil" } = Astro.props;
 
 		<footer class="site-footer">
 			<div class="site-footer-inner">
+				<div class="footer-art">
+					<img id="listening-art" alt="Album art" />
+				</div>
 				<span class="footer-label">Listening to:</span>
-				<span class="footer-track" id="listening-track">blah blah blah</span>
+				<span class="footer-track" id="listening-track">loading…</span>
 			</div>
 		</footer>
 	</body>
 </html>
 
-<script>
-	const LASTFM_USER = 'YOUR_LASTFM_USERNAME';
-	const LASTFM_API_KEY = 'YOUR_LASTFM_API_KEY';
+<script define:vars={{ lastfmUser, lastfmApiKey }}>
+	let lastTrackKey = '';
+	const LASTFM_USER = lastfmUser;
+	const LASTFM_API_KEY = lastfmApiKey;
 
 	async function fetchListeningTrack() {
-		const el = document.getElementById('listening-track');
-		if (!el || !LASTFM_USER || !LASTFM_API_KEY) return;
+		const textEl = document.getElementById('listening-track');
+		const artEl = document.getElementById('listening-art');
+		if (!textEl || !artEl || !LASTFM_USER || !LASTFM_API_KEY) return;
 
 		try {
 			const url = new URL('https://ws.audioscrobbler.com/2.0/');
@@ -65,24 +71,273 @@ const { title = "saahil" } = Astro.props;
 			const track = data?.recenttracks?.track?.[0] ?? data?.recenttracks?.track;
 
 			if (!track) {
-				el.textContent = 'nothing recently played.';
+				textEl.textContent = 'nothing recently played.';
+				artEl.style.display = 'none';
+
+				try {
+					wrapRoot(textEl);
+				} catch {}
 				return;
 			}
 
 			const name = track.name;
 			const artist = track.artist?.['#text'] ?? '';
 			const nowPlaying = track['@attr']?.nowplaying === 'true';
+			const trackKey = `${name} — ${artist}`;
 
-			el.textContent = nowPlaying
-				? `now playing: ${name} — ${artist}`
-				: `${name} — ${artist}`;
+			textEl.textContent = trackKey;
+			lastTrackKey = trackKey;
+
+			try {
+				wrapRoot(textEl);
+			} catch {}
+
+			const images = Array.isArray(track.image) ? track.image : [];
+			const preferredSizes = ['extralarge', 'large', 'medium', 'small'];
+			let imageUrl = '';
+
+			for (const size of preferredSizes) {
+				const img = images.find((img) => img.size === size && img['#text']);
+				if (img && img['#text']) {
+					imageUrl = img['#text'];
+					break;
+				}
+			}
+
+			if (imageUrl) {
+				artEl.src = imageUrl;
+				artEl.style.display = 'block';
+			} else {
+				artEl.style.display = 'none';
+			}
 		} catch {
-			const el = document.getElementById('listening-track');
-			if (el) el.textContent = 'unable to load right now.';
+			const text = document.getElementById('listening-track');
+			const art = document.getElementById('listening-art');
+			if (text) {
+				text.textContent = 'unable to load right now.';
+
+				try {
+					wrapRoot(text);
+				} catch {}
+			}
+			if (art) art.style.display = 'none';
 		}
 	}
 
 	fetchListeningTrack();
+
+	// poll every 30 secs lol
+	setInterval(fetchListeningTrack, 30000);
+
+	const MAG_ROOT = '.site-header, .site-main, .site-footer';
+	const MAG_CHAR = 'magnetic-char'; 
+	const INK_CLASS = 'inked-char'; 
+
+	// not magnetic
+	function skipElem(el) {
+		if (!el) return true;
+		const tag = el.tagName;
+		return (
+			tag === 'SCRIPT' ||
+			tag === 'STYLE' ||
+			tag === 'NOSCRIPT' ||
+			tag === 'IFRAME' ||
+			tag === 'TEXTAREA' ||
+			tag === 'INPUT' ||
+			el.closest('[data-no-magnet]') != null
+		);
+	}
+
+	// per character spans
+	function wrapText(textNode) {
+		const txt = textNode.nodeValue ?? '';
+		if (!txt.trim()) return;
+		const parent = textNode.parentElement;
+		if (!parent || skipElem(parent)) return;
+
+		const frag = document.createDocumentFragment();
+		for (const ch of txt) {
+			if (ch === ' ') {
+				frag.appendChild(document.createTextNode(' '));
+				continue;
+			}
+			if (ch === '\n' || ch === '\t') {
+				frag.appendChild(document.createTextNode(ch));
+				continue;
+			}
+			const span = document.createElement('span');
+			span.className = MAG_CHAR;
+			span.textContent = ch;
+			frag.appendChild(span);
+		}
+		textNode.parentNode?.replaceChild(frag, textNode);
+	}
+
+	function wrapRoot(root) {
+		if (!root) return;
+		if (!(root instanceof HTMLElement)) return;
+		if (skipElem(root)) return;
+		const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+			acceptNode(node) {
+				const parent = node.parentElement;
+				if (!parent || skipElem(parent)) return NodeFilter.FILTER_REJECT;
+				if (parent.classList?.contains(MAG_CHAR)) return NodeFilter.FILTER_REJECT;
+				return NodeFilter.FILTER_ACCEPT;
+			},
+		});
+
+		const nodes = [];
+		let n = walker.nextNode();
+		while (n) {
+			nodes.push(n);
+			n = walker.nextNode();
+		}
+		for (const textNode of nodes) wrapText(textNode);
+	}
+
+	function initMagnet() {
+		const roots = document.querySelectorAll(MAG_ROOT);
+		for (const root of roots) {
+			wrapRoot(root);
+		}
+	}
+
+	let mouseX = -9999; 
+	let mouseY = -9999; 
+	let rafId = 0;
+	let timeStart = performance.now(); // jitter if sleepy
+	let lastMove = performance.now();
+	const magState = new WeakMap();
+
+	// physics! kinda 
+	function charState(el) {
+		let s = magState.get(el);
+		if (!s) {
+			// diff pull for diff classes
+			let weight = 1;
+			if (el.closest('h1, h2, h3, a')) weight = 1.6;
+			else if (el.closest('small, .footer-track')) weight = 0.7;
+
+			s = {
+				vx: 0,
+				vy: 0,
+				ox: 0,
+				oy: 0,
+
+				seedX: Math.random() * 1000,
+				seedY: Math.random() * 1000,
+				weight,
+			};
+			magState.set(el, s);
+		}
+		return s;
+	}
+
+	function tickMagnet() {
+		rafId = 0;
+		const now = performance.now();
+		const t = (now - timeStart) / 1000;
+		const idleFar = mouseX === -9999 && mouseY === -9999;
+		const idleTime = now - lastMove;
+		const canIdle = idleFar || idleTime > 2000;
+
+		const chars = document.querySelectorAll(`.${MAG_CHAR}`);
+
+		const fieldRad = 60; // the fieldddd
+		const inkRad = 12; // the ink!
+
+		const springBase = 0.12;
+		const dampBase = 0.18;
+		const offBase = 4;
+
+		for (const el of chars) {
+			const rect = el.getBoundingClientRect();
+			const cx = rect.left + rect.width / 2;
+			const cy = rect.top + rect.height / 2;
+			const dx = mouseX - cx;
+			const dy = mouseY - cy;
+			const dist = Math.hypot(dx, dy);
+
+			const state = charState(el);
+			const { weight, seedX, seedY } = state;
+
+			const spring = springBase * weight;
+			const damping = dampBase;
+			const maxOff = offBase * weight;
+
+			let ax = -state.ox * spring;
+			let ay = -state.oy * spring;
+
+			if (dist < fieldRad) {
+				// i want you
+				const infl = 1 - dist / fieldRad;
+				const force = (4 + 6 * infl) * weight;
+				const nx = dx / (dist || 1);
+				const ny = dy / (dist || 1);
+				ax += nx * force * infl;
+				ay += ny * force * infl;
+
+				if (dist < inkRad) {
+					el.classList.add(INK_CLASS);
+				}
+			}
+
+			state.vx = (state.vx + ax) * (1 - damping);
+			state.vy = (state.vy + ay) * (1 - damping);
+
+			state.ox += state.vx * 0.016;
+			state.oy += state.vy * 0.016;
+
+			const mag = Math.hypot(state.ox, state.oy);
+			if (mag > maxOff) {
+				const scale = maxOff / mag;
+				state.ox *= scale;
+				state.oy *= scale;
+			}
+
+			const idleStr = canIdle ? 1 : 0;
+			const idleAmp = 0.12 * idleStr;
+			const idleF1 = 0.8;
+			const idleF2 = 1.3;
+			const jitterX = Math.sin(t * idleF1 + seedX) * idleAmp;
+			const jitterY = Math.cos(t * idleF2 + seedY) * idleAmp;
+
+			const tx = state.ox + jitterX;
+			const ty = state.oy + jitterY;
+
+			const angle = Math.atan2(ty, tx) * (180 / Math.PI);
+			const spin = (Math.hypot(tx, ty) / maxOff) * 6;
+
+			el.style.transform = `translate(${tx.toFixed(2)}px, ${ty.toFixed(
+				2
+			)}px) rotate(${(angle * 0.08 + spin).toFixed(2)}deg)`;
+		}
+
+		rafId = requestAnimationFrame(tickMagnet);
+	}
+
+	window.addEventListener(
+		'pointermove',
+		(e) => {
+			mouseX = e.clientX;
+			mouseY = e.clientY;
+			lastMove = performance.now();
+			if (!rafId) rafId = requestAnimationFrame(tickMagnet);
+		},
+		{ passive: true }
+	);
+
+	window.addEventListener('pointerleave', () => {
+		mouseX = -9999;
+		mouseY = -9999;
+		if (!rafId) rafId = requestAnimationFrame(tickMagnet);
+	});
+
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', initMagnet, { once: true });
+	} else {
+		initMagnet();
+	}
 </script>
 
 <style is:global>
@@ -121,6 +376,17 @@ const { title = "saahil" } = Astro.props;
 		position: relative;
 	}
 
+	.magnetic-char {
+		display: inline-block;
+		will-change: transform;
+		transition: transform 140ms ease-out;
+	}
+
+	.inked-char {
+		color: #c084fc;
+		transition: color 0.15s ease-out;
+	}
+
 	.scanlines {
 		position: fixed;
 		top: 0;
@@ -141,7 +407,7 @@ const { title = "saahil" } = Astro.props;
 	.site-header {
 		position: sticky;
 		top: 0;
-		z-index: 1;
+		z-index: 10;
 		backdrop-filter: blur(16px);
 		background: linear-gradient(to bottom, rgba(5, 5, 5, 0.96), rgba(5, 5, 5, 0.85));
 		border-bottom: 1px solid rgba(255, 255, 255, 0.06);
@@ -189,18 +455,76 @@ const { title = "saahil" } = Astro.props;
 		margin: 0 auto;
 		padding: 0.9rem 1.5rem 1.5rem;
 		display: flex;
-		gap: 0.5rem;
-		align-items: baseline;
-		font-size: 0.95rem;
+		gap: 0.75rem;
+		align-items: center;
+		font-size: 0.85rem;
 		color: var(--text-secondary);
+	}
+
+	.footer-art {
+		width: 32px;
+		height: 32px;
+		flex: 0 0 32px;
+		aspect-ratio: 1 / 1;
+		border-radius: 50%;
+		overflow: hidden;
+		border: 2px solid rgba(255, 255, 255, 0.12);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		position: relative;
+		background:
+			radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.15), transparent 55%),
+			radial-gradient(circle at center, rgba(0, 0, 0, 0.8), transparent 70%);
+	}
+
+	.footer-art img {
+		width: 100%;
+		height: 100%;
+		border-radius: 50%;
+		object-fit: cover;
+		animation: ceedeez 10s linear infinite;
+		transform-origin: center;
+	}
+
+	.footer-art::before {
+		content: '';
+		position: absolute;
+		width: 40%;
+		height: 40%;
+		border-radius: 50%;
+		background: radial-gradient(circle at center, rgba(0, 0, 0, 0.8), transparent 65%);
+		box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.8);
+	}
+
+	.footer-art::after {
+		content: '';
+		position: absolute;
+		width: 14%;
+		height: 14%;
+		border-radius: 50%;
+		background: rgba(0, 0, 0, 0.9);
+		box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.5);
+	}
+
+	@keyframes ceedeez {
+		from {
+			transform: rotate(0deg);
+		}
+		to {
+			transform: rotate(360deg);
+		}
 	}
 
 	.footer-label {
 		font-weight: normal;
+		color: var(--text-primary);
+		font-size: 0.85rem;
 	}
 
 	.footer-track {
-		color: var(--text-primary);
+		color: var(--text-secondary);
+		font-size: 0.8rem;
 	}
 
 	::selection {

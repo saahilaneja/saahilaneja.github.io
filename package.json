@@ -10,7 +10,8 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^5.12.7"
+    "astro": "^5.12.7",
+    "tilt.js": "^1.2.1"
   },
   "devDependencies": {
     "gh-pages": "^6.3.0",
