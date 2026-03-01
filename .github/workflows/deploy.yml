@@ -27,6 +27,8 @@ jobs:
         run: npm ci
       
       - name: Build Astro
+        env:
+          PUBLIC_LASTFM_API_KEY: ${{ secrets.PUBLIC_LASTFM_API_KEY }}
         run: npm run build
       
       - name: Upload artifact

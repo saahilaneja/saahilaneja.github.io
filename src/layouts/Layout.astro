@@ -39,8 +39,10 @@ const lastfmUser = 'anejpg';
 				<div class="footer-art">
 					<img id="listening-art" alt="Album art" />
 				</div>
-				<span class="footer-label">Listening to:</span>
-				<span class="footer-track" id="listening-track">loading…</span>
+				<div class="footer-listening">
+					<span class="footer-label">Listening to:</span>
+					<span class="footer-track" id="listening-track">loading…</span>
+				</div>
 			</div>
 		</footer>
 	</body>
@@ -459,6 +461,17 @@ const lastfmUser = 'anejpg';
 		align-items: center;
 		font-size: 0.85rem;
 		color: var(--text-secondary);
+		flex-wrap: wrap;
+	}
+
+	.footer-listening {
+		min-width: 0;
+		flex: 1 1 auto;
+		display: flex;
+		align-items: baseline;
+		gap: 0.35em;
+		flex-wrap: wrap;
+		row-gap: 0.15em;
 	}
 
 	.footer-art {
@@ -517,14 +530,33 @@ const lastfmUser = 'anejpg';
 	}
 
 	.footer-label {
+		flex-shrink: 0;
 		font-weight: normal;
 		color: var(--text-primary);
 		font-size: 0.85rem;
 	}
 
 	.footer-track {
+		min-width: 0;
 		color: var(--text-secondary);
 		font-size: 0.8rem;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	@media (max-width: 480px) {
+		.footer-listening {
+			flex-basis: 100%;
+		}
+		.footer-track {
+			white-space: normal;
+			overflow-wrap: anywhere;
+			word-break: break-word;
+			text-overflow: clip;
+			line-height: 1.35;
+			max-width: 100%;
+		}
 	}
 
 	::selection {

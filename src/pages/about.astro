@@ -3,35 +3,38 @@ import Layout from '../layouts/Layout.astro';
 
 const apiKey = import.meta.env.PUBLIC_LASTFM_API_KEY;
 
-async function getTopAlbums(artist: string, limit = 6) {
-  if (!apiKey) return [];
+const ALBUMS = [
+  { artist: 'A$AP Rocky', album: 'At Long Last A$AP' },
+  { artist: 'Kendrick Lamar', album: 'To Pimp a Butterfly' },
+  { artist: 'Frank Ocean', album: 'Blonde' },
+  { artist: 'Nujabes', album: 'Modal Soul' },
+  { artist: 'Sampha', album: 'Lahai' },
+  { artist: 'N.E.R.D.', album: 'Seeing Sounds' },
+  { artist: 'TV Girl', album: 'Who Really Cares' },
+];
+
+async function getAlbumCover(artist, album) {
+  if (!apiKey) return null;
   const url = new URL('https://ws.audioscrobbler.com/2.0/');
-  url.searchParams.set('method', 'artist.gettopalbums');
+  url.searchParams.set('method', 'album.getinfo');
   url.searchParams.set('artist', artist);
+  url.searchParams.set('album', album);
   url.searchParams.set('api_key', apiKey);
   url.searchParams.set('format', 'json');
-  url.searchParams.set('limit', String(limit));
   const res = await fetch(url.toString());
-  if (!res.ok) return [];
+  if (!res.ok) return null;
   const data = await res.json();
-  const albums = data?.topalbums?.album ?? [];
-  return albums
-    .filter((a: any) => a.image?.length)
-    .map((a: any) => {
-      const imgs = Array.isArray(a.image) ? a.image : [];
-      const large = imgs.find((i: any) => i.size === 'large' && i['#text']);
-      const med = imgs.find((i: any) => i.size === 'medium' && i['#text']);
-      const img = large?.['#text'] || med?.['#text'] || imgs[0]?.['#text'] || '';
-      return { name: a.name ?? '', imageUrl: img };
-    })
-    .filter((a: { imageUrl: string }) => a.imageUrl);
+  const a = data?.album;
+  if (!a?.image?.length) return null;
+  const imgs = Array.isArray(a.image) ? a.image : [];
+  const large = imgs.find((i) => i.size === 'large' && i['#text']);
+  const med = imgs.find((i) => i.size === 'medium' && i['#text']);
+  const imageUrl = large?.['#text'] || med?.['#text'] || imgs[0]?.['#text'] || '';
+  if (!imageUrl) return null;
+  return { name: a.name ?? album, imageUrl };
 }
 
-const [rockyAlbums, kendrickAlbums] = await Promise.all([
-  getTopAlbums('A$AP Rocky', 8),
-  getTopAlbums('Kendrick Lamar', 8),
-]);
-const vinylCovers = [...rockyAlbums, ...kendrickAlbums];
+const vinylCovers = (await Promise.all(ALBUMS.map(({ artist, album }) => getAlbumCover(artist, album)))).filter(Boolean);
 ---
 
 <Layout title="about - saahil">
@@ -58,29 +61,8 @@ const vinylCovers = [...rockyAlbums, ...kendrickAlbums];
         </p>
       </div>
 
-      <section class="section about-main">
+      <section class="section favorites-section">
         <h2>my favorites</h2>
-
-        {vinylCovers.length > 0 && (
-          <>
-            <p class="vinyl-label">vinyl collection</p>
-            <div class="vinyl-scroll-wrap" aria-hidden="true">
-              <div class="vinyl-scroll-track">
-                {vinylCovers.map((a) => (
-                  <a class="vinyl-cover" title={a.name}>
-                    <img src={a.imageUrl} alt={a.name} width="160" height="160" loading="lazy" />
-                  </a>
-                ))}
-                {vinylCovers.map((a) => (
-                  <a class="vinyl-cover" title={a.name}>
-                    <img src={a.imageUrl} alt={a.name} width="160" height="160" loading="lazy" />
-                  </a>
-                ))}
-              </div>
-            </div>
-          </>
-        )}
-
         <div class="favorites">
           <div class="favorite-group">
             <h3 class="favorite-category">games</h3>
@@ -100,13 +82,30 @@ const vinylCovers = [...rockyAlbums, ...kendrickAlbums];
             </ul>
           </div>
 
-          <div class="favorite-group">
+          <div class="favorite-group favorite-group-music">
             <h3 class="favorite-category">music</h3>
-            <ul class="favorite-items">
-              <li>ASAP Rocky</li>
-              <li>Sampha</li>
-              <li>N.E.R.D.</li>
-            </ul>
+            {vinylCovers.length > 0 ? (
+              <div class="vinyl-scroll-wrap" aria-hidden="true">
+                <div class="vinyl-scroll-track">
+                  {vinylCovers.map((a) => (
+                    <a class="vinyl-cover" title={a.name}>
+                      <img src={a.imageUrl} alt={a.name} width="320" height="320" loading="lazy" />
+                    </a>
+                  ))}
+                  {vinylCovers.map((a) => (
+                    <a class="vinyl-cover" title={a.name}>
+                      <img src={a.imageUrl} alt={a.name} width="320" height="320" loading="lazy" />
+                    </a>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <ul class="favorite-items">
+                <li>ASAP Rocky</li>
+                <li>Sampha</li>
+                <li>N.E.R.D.</li>
+              </ul>
+            )}
           </div>
 
           <div class="favorite-group">
@@ -138,7 +137,7 @@ const vinylCovers = [...rockyAlbums, ...kendrickAlbums];
       maxTilt: 28,
       perspective: 600,
       glare: true,
-      maxGlare: 0.25,
+      maxGlare: 0.4,
       scale: 1,
       speed: 350,
     });
@@ -165,10 +164,9 @@ const vinylCovers = [...rockyAlbums, ...kendrickAlbums];
   }
 
   .about-layout {
-    display: grid;
-    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-    gap: 2rem;
-    align-items: flex-start;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
   }
 
   .about-story {
@@ -180,7 +178,7 @@ const vinylCovers = [...rockyAlbums, ...kendrickAlbums];
   .about-story p {
     color: var(--text-secondary);
     font-size: 1.05rem;
-    max-width: 34rem;
+    max-width: none;
   }
 
   .section {
@@ -196,33 +194,21 @@ const vinylCovers = [...rockyAlbums, ...kendrickAlbums];
     color: var(--text-secondary);
   }
 
-  .about-main {
-    max-width: 32rem;
-  }
-
   .vinyl-scroll-wrap {
-    margin: 1rem 0 1.25rem;
-    padding: 28px 0;
+    margin: 0.5rem 0 0;
+    padding: 40px 0;
     overflow: hidden;
-    mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
-    -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
-  }
-
-  .vinyl-label {
-    font-size: 0.8rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--text-secondary);
-    margin-bottom: 0.5rem;
+    mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent);
   }
 
   .vinyl-scroll-track {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 1rem;
     width: max-content;
-    animation: vinyl-scroll 45s linear infinite;
-    margin: -28px 0;
+    animation: vinyl-scroll 50s linear infinite;
+    margin: -40px 0;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -236,24 +222,13 @@ const vinylCovers = [...rockyAlbums, ...kendrickAlbums];
   }
 
   .vinyl-cover {
+    position: relative;
     flex-shrink: 0;
-    width: 88px;
-    height: 88px;
-    border-radius: 10px;
+    width: 200px;
+    height: 200px;
+    border-radius: 8px;
     overflow: hidden;
-    border: 2px solid rgba(255, 255, 255, 0.06);
-    box-shadow:
-      0 4px 12px rgba(0, 0, 0, 0.4),
-      0 0 0 1px rgba(255, 255, 255, 0.04) inset;
-    transition: border-color 0.2s ease, box-shadow 0.25s ease;
-  }
-
-  .vinyl-cover:hover {
-    border-color: rgba(192, 132, 252, 0.35);
-    box-shadow:
-      0 8px 24px rgba(0, 0, 0, 0.5),
-      0 0 20px rgba(192, 132, 252, 0.12),
-      0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
   }
 
   .vinyl-cover img {
@@ -262,6 +237,28 @@ const vinylCovers = [...rockyAlbums, ...kendrickAlbums];
     object-fit: cover;
     display: block;
     pointer-events: none;
+  }
+
+  .vinyl-cover .js-tilt-glare {
+    border-radius: 8px;
+  }
+
+  .vinyl-cover .js-tilt-glare-inner {
+    background: linear-gradient(
+      105deg,
+      transparent 30%,
+      rgba(255, 255, 255, 0.5) 50%,
+      transparent 70%
+    );
+    border-radius: 8px;
+  }
+
+  .favorite-group-music .vinyl-scroll-wrap {
+    margin-top: 0.4rem;
+  }
+
+  .favorites-section {
+    margin-top: 0.5rem;
   }
 
   @keyframes vinyl-scroll {
@@ -317,9 +314,9 @@ const vinylCovers = [...rockyAlbums, ...kendrickAlbums];
   }
 
   @media (max-width: 768px) {
-    .about-layout {
-      grid-template-columns: minmax(0, 1fr);
-      gap: 1.75rem;
+    .vinyl-cover {
+      width: 160px;
+      height: 160px;
     }
   }
 </style>
