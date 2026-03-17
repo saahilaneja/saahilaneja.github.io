@@ -48,7 +48,8 @@ const FAVORITES = {
     'Machine Girl',
     'Ryota Kozuka',
     'Pi\'erre Bourne',
-    'Garoad'
+    'Garoad',
+    'Paris Texas'
   ],
 } as const;
 ---
@@ -62,13 +63,14 @@ const FAVORITES = {
           Born in Detroit, raised in Germany, bounced back to Michigan, spent some time in Oregon, and then somehow ended up in West Lafayette. At this point moving around is just kind of how I'm built. I think it's why I care so much about things that feel genuine. You can tell when something comes from somewhere real.
         </p>
         <p>
-          I'm a junior studying CS and psychology, which are two fields that are basically just different ways of asking why things break and who's responsible. I'm currently working on XR simulations at Purdue's <a class="inline-link" href="https://www.rcac.purdue.edu/envision" target="_blank" rel="noreferrer">Envision Center</a>, and I'm deeply, perhaps concerningly, invested in Detroit sports and the state of hip-hop. I make <a class="inline-link" href="https://jam.ms" target="_blank" rel="noreferrer">games</a> with friends, program, do some sound design, and have very strong opinions about the current state of the world, social media, and the things we consume.
+          I'm a junior studying CS and psychology, which are two fields that are basically just different ways of asking why things break and who's responsible. I'm currently working on XR simulations at Purdue's <a class="inline-link" href="https://www.rcac.purdue.edu/envision" target="_blank" rel="noreferrer">Envision Center</a>, and I'm deeply, perhaps concerningly, invested in Detroit sports and the state of hip-hop. I make <a class="inline-link" href="https://jam.ms" target="_blank" rel="noreferrer">games</a> with friends, program, do some sound design, and have very strong opinions about the current status of the world, social media, and the things we consume.
         </p>
         <p>
           What actually drives me is pretty simple: I want to make experiences that hit. Games, music, media, whatever... If I'm not in tears by the end, was it truly a great experience? I'm chasing that feeling in everything I work on. There's too much stuff out there that's been polished into forgettableness, and I'd rather make something weird and specific and alive than something clean and nothing.
         </p>
-        <p>
+        <p class="about__closing">
           Nice to meet you!
+          <a class="about__email" href="mailto:saahil@jam.ms">saahil@jam.ms</a>
         </p>
       </section>
 
@@ -195,6 +197,11 @@ const FAVORITES = {
     if (dice) {
       dice.dataset.rolling = 'true';
       setDiceFace(dice, randomFace());
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches && 'vibrate' in navigator) {
+        try {
+          navigator.vibrate(20);
+        } catch {}
+      }
     }
 
     const uls = Array.from(document.querySelectorAll('.faves__items[data-faves]'));
@@ -256,6 +263,16 @@ const FAVORITES = {
     font-size: var(--text-body);
     color: var(--text);
     margin-bottom: var(--space-md);
+  }
+
+  .about__closing {
+    font-size: var(--text-body);
+    color: var(--text-muted);
+  }
+
+  .about__email {
+    color: var(--text-muted);
+    font-size: var(--text-small);
   }
 
   .inline-link {
