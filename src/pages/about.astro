@@ -24,12 +24,13 @@ const FAVORITES = {
   games: [
     'Shin Megami Tensei',
     'VA-11 Hall-A',
-    'Katana Zero',
+    'Katana ZERO',
     'Fields of Mistria',
     'Hollow Knight',
     'The World Ends with You',
-    'Metaphor: Refantazio',
-    'Yakuza'
+    'Metaphor: ReFantazio',
+    'Yakuza',
+    'PaRappa the Rapper'
   ],
   music: [
     'A$AP Rocky',
@@ -40,28 +41,34 @@ const FAVORITES = {
     'Frank Ocean',
     'N.E.R.D.',
     'TV Girl',
+    'PinkPantheress',
+    'The Marias',
+    'Puzzle',
+    'Flying Lotus',
+    'Machine Girl',
+    'Ryota Kozuka',
+    'Pi\'erre Bourne',
+    'Garoad'
   ],
 } as const;
 ---
 
 <Layout title="About — Saahil Aneja">
   <article class="about">
-    <header class="about__header">
-      <h1 class="about__title">About</h1>
-      <p class="about__lead">
-        Blah blah blah blah blah blah blah blah blah blah blah blah.
-      </p>
-    </header>
-
     <div class="about__body">
       <section class="about__section">
+        <h1 class="about__title">Hey, I'm Saahil.</h1>
         <p>
-          Blah blah blah blah blah blah blah blah blah blah blah blah
-          blah blah blah blah blah blah blah blah blah blah blah blah.
+          Born in Detroit, raised in Germany, bounced back to Michigan, spent some time in Oregon, and then somehow ended up in West Lafayette. At this point moving around is just kind of how I'm built. I think it's why I care so much about things that feel genuine. You can tell when something comes from somewhere real.
         </p>
         <p>
-          Blah blah blah blah blah blah blah blah blah blah blah blah
-          blah blah blah blah blah blah blah blah blah blah blah blah.
+          I'm a junior studying CS and psychology, which are two fields that are basically just different ways of asking why things break and who's responsible. I'm currently working on XR simulations at Purdue's <a class="inline-link" href="https://www.rcac.purdue.edu/envision" target="_blank" rel="noreferrer">Envision Center</a>, and I'm deeply, perhaps concerningly, invested in Detroit sports and the state of hip-hop. I make <a class="inline-link" href="https://jam.ms" target="_blank" rel="noreferrer">games</a> with friends, program, do some sound design, and have very strong opinions about the current state of the world, social media, and the things we consume.
+        </p>
+        <p>
+          What actually drives me is pretty simple: I want to make experiences that hit. Games, music, media, whatever... If I'm not in tears by the end, was it truly a great experience? I'm chasing that feeling in everything I work on. There's too much stuff out there that's been polished into forgettableness, and I'd rather make something weird and specific and alive than something clean and nothing.
+        </p>
+        <p>
+          Nice to meet you!
         </p>
       </section>
 
@@ -230,22 +237,13 @@ const FAVORITES = {
     max-width: 40rem;
   }
 
-  .about__header {
-    margin-bottom: var(--space-2xl);
-  }
-
   .about__title {
     font-family: var(--font-display);
     font-size: var(--text-title);
     font-weight: 400;
     color: var(--text);
-    margin-bottom: var(--space-md);
-  }
-
-  .about__lead {
-    font-size: var(--text-body);
-    color: var(--text-muted);
     line-height: var(--line-body);
+    margin-bottom: var(--space-md);
   }
 
   .about__body {
@@ -258,6 +256,18 @@ const FAVORITES = {
     font-size: var(--text-body);
     color: var(--text);
     margin-bottom: var(--space-md);
+  }
+
+  .inline-link {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+    text-decoration-color: var(--accent);
+  }
+
+  .inline-link:hover {
+    color: var(--accent);
   }
 
   .about__section p:last-child {
