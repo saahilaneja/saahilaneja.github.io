@@ -20,6 +20,8 @@ const FAVORITES = {
     'Welcome to the NHK!',
     'Soul Eater',
     'Delicious in Dungeon',
+    'Death Note',
+    'Zetsubou-Sensei'
   ],
   games: [
     'Shin Megami Tensei',
@@ -30,7 +32,8 @@ const FAVORITES = {
     'The World Ends with You',
     'Metaphor: ReFantazio',
     'Yakuza',
-    'PaRappa the Rapper'
+    'PaRappa the Rapper',
+    'Cyberpunk 2077'
   ],
   music: [
     'A$AP Rocky',
@@ -49,7 +52,9 @@ const FAVORITES = {
     'Ryota Kozuka',
     'Pi\'erre Bourne',
     'Garoad',
-    'Paris Texas'
+    'Paris Texas',
+    'Mac Miller',
+    'Kahlil Blu'
   ],
 } as const;
 ---
@@ -159,7 +164,18 @@ const FAVORITES = {
 
   function animateRoulette(ul, pool, onDone) {
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const finalPick = pickN(pool, 3);
+
+    let previous = [];
+    if (ul.dataset.lastFinal) {
+      try {
+        const parsed = JSON.parse(ul.dataset.lastFinal);
+        if (Array.isArray(parsed)) previous = parsed;
+      } catch {}
+    }
+
+    const candidatePool = pool.filter((item) => !previous.includes(item));
+    const source = candidatePool.length >= 3 ? candidatePool : pool;
+    const finalPick = pickN(source, 3);
     if (reduce) {
       renderList(ul, finalPick);
       if (typeof onDone === 'function') onDone();
@@ -178,10 +194,10 @@ const FAVORITES = {
       const id = setTimeout(() => {
         if (isLast) {
           renderList(ul, finalPick);
+          ul.dataset.lastFinal = JSON.stringify(finalPick);
           ul.dataset.spinning = 'false';
           if (typeof onDone === 'function') onDone();
         } else {
-  
           const dice = document.querySelector('[data-dice]');
           if (dice) setDiceFace(dice, randomFace());
           renderList(ul, pickN(pool, 3));
@@ -352,11 +368,7 @@ const FAVORITES = {
   }
 
   .favorites-dice[data-rolling='true'] .dice {
-    animation: dice-nudge 900ms ease-in-out infinite;
-  }
-
-  .favorites-dice[data-rolling='true'] .dice::before {
-    /* keep pips readable; faces are swapped by JS */
+    animation: dice-roll 700ms cubic-bezier(0.45, 0, 0.55, 1) infinite;
   }
 
   .favorites-dice[data-face='1'] .dice::before {
@@ -399,11 +411,22 @@ const FAVORITES = {
       radial-gradient(circle at 70% 70%, color-mix(in srgb, var(--text) 70%, transparent) 0 1.1px, transparent 1.8px);
   }
 
-  @keyframes dice-nudge {
-    0% { transform: rotate(0deg); }
-    35% { transform: rotate(-6deg); }
-    70% { transform: rotate(6deg); }
-    100% { transform: rotate(0deg); }
+  @keyframes dice-roll {
+    0% {
+      transform: translateY(0) rotate(0deg);
+    }
+    25% {
+      transform: translateY(-3px) rotate(120deg);
+    }
+    50% {
+      transform: translateY(0) rotate(240deg);
+    }
+    75% {
+      transform: translateY(-2px) rotate(300deg);
+    }
+    100% {
+      transform: translateY(0) rotate(360deg);
+    }
   }
 
   .faves {
